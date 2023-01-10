@@ -262,25 +262,6 @@ def get_model_output_paths(root):
 
     #@markdown **Google Drive Path Variables (Optional)**
     
-    force_remount = False
-
-    try:
-        ipy = get_ipython()
-    except:
-        ipy = 'could not get_ipython'
-
-    if 'google.colab' in str(ipy):
-        if root.mount_google_drive:
-            from google.colab import drive # type: ignore
-            try:
-                drive_path = "/content/drive"
-                drive.mount(drive_path,force_remount=force_remount)
-                models_path = root.models_path_gdrive
-                output_path = root.output_path_gdrive
-            except:
-                print("..error mounting drive or with drive path variables")
-                print("..reverting to default path variables")
-
     models_path = os.path.abspath(models_path)
     output_path = os.path.abspath(output_path)
     os.makedirs(models_path, exist_ok=True)
