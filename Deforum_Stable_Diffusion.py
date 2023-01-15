@@ -97,15 +97,12 @@ def DeforumAnimArgs():
 
     #@markdown ####**Animation:**
     animation_mode = '2D' #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
-    max_frames = 177 #@param {type:"number"}
+    max_frames = 120 #@param {type:"number"}
     border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
     #@markdown ####**Motion Parameters:**
-    angle = "0:(4), 64:(0), 96:(0), 128:(4), 144:(8), 160:(16), 176:(32)"
-    zoom = """0:(0.98), 16:(1.02), 32:(0.98), 
-48:(1.02), 64:(0.98), 80:(1.02), 96:(0.98), 
-112:(1.02), 128:(0.98), 144:(0.94), 160:(0.84), 176:(0.7)
-"""#1.04
+    angle = "0:(0)"
+    zoom = """0:(1)"""#1.04
     translation_x = "0:(0)" #10*sin(2*3.14*t/10)
     translation_y = "0:(0)"
     translation_z = "0:(0)" #10
@@ -117,8 +114,8 @@ def DeforumAnimArgs():
     perspective_flip_phi = "0:(0)" #t%15
     perspective_flip_gamma = "0:(0)"
     perspective_flip_fv = "0:(0)" #53
-    noise_schedule = "0: (0.02)" #important
-    strength_schedule = "0: (0.5)" #important
+    noise_schedule = "0: (0.04)" #important
+    strength_schedule = "0: (0.3)" #important
     contrast_schedule = "0: (1.0)"
     hybrid_video_comp_alpha_schedule = "0:(1)" 
     hybrid_video_comp_mask_blend_alpha_schedule = "0:(0.5)" 
@@ -148,7 +145,7 @@ def DeforumAnimArgs():
     save_depth_maps = False #@param {type:"boolean"}
 
     #@markdown ####**Video Input:**
-    video_init_path ='/content/video_in.mp4'
+    video_init_path ='wig_init.mp4'
     extract_nth_frame = 1#@param {type:"number"}
     overwrite_extracted_frames = True #@param {type:"boolean"}
     use_mask_video = False #@param {type:"boolean"}
@@ -191,51 +188,41 @@ prompts = [
 ]
 
 animation_prompts = {
-    0: """
-(photograph of a single centered navel orange on a plate, 
-photorealism, ultra-detailed, 100 mm shot, beautiful,
-studio quality, 8k):1, 
-(logo, signature, text, eating, cutlery, grill, off-center, cropped):-1
-""",
-    32: """
-(an orange with a cartoon eye in the middle, 
-trending on Artstation, photorealistic, ultra-detailed):1, 
-(logo, signature, text):-1
-""",
-    48: """
-(an orange with a giant cartoon eye in the middle, evil eye gazing, 
-trending on Artstation, matte painting, ultra-detailed):1, 
-(logo, signature, text):-1
-""",
-    64: """
-(an orange with a face, hands and feet, in the style of Cuphead, 
-hand-drawn animation, 
-illustration, large cartoon eyes, wide evil grin, 
-ultra detailed, trending on Artstation):1, 
-(logo, signature, photograph, text):-1
-""",
-    128: """
-(an orange fruit with a glowing eye in the middle, radiating light, 
-fruit constellation, the cosmic orange, galactic, transcendent, ultimate being, fractal, 
-hyperrealistic, dramatic lighting, 
-ultra detailed, trending on Artstation):1, 
-(logo, signature, text, blur):-1
-""",
-    144: """
-(the sun with a glowing eye in the middle, cosmic orange, galactic, 
-transcendent, ultimate being, fractal, 
-hyperrealistic, breathtaking, 
-ultra detailed, trending on Artstation):1, 
-(logo, signature, text, blur):-1
-""",
-    160: """
-(rendition of a vibrating black hole, singularity, galactic, transcendent, 
-fractal, hyperrealistic, mindblowing, 
-ultra detailed, trending on Artstation):1, 
-(logo, signature, text, blur):-1
-""",
-    172: """pitch black, void, nothingness, dark matter""",
-    # 40: "a beautiful durian, trending on Artstation",
+    0: """(
+ultra-detailed photograph of a pirate ship, jolly roger, 
+stormy waves, lightning, epic, cinematic, dramatic shadows, skulls, 
+elegant intricate artstation concept art
+"""
+#     0: """(highly detailed portrait of a necromancer, 
+# volumetric fog, hyperrealism, breathtaking, ultra realistic, unreal engine, 
+# ultra detailed, cyber background, Hyperrealism, cinematic lighting, 
+# highly detailed, breathtaking, photography, stunning environment, wide-angle):1, 
+# (doll, bad anatomy, blurry, fuzzy, 
+# extra arms, extra fingers, poorly drawn hands, 
+# disfigured, tiling, deformed, mutated, signature):-1
+# """,
+#     80: """(highly detailed portrait of a skull warrior, 
+# volumetric fog, hyperrealism, breathtaking, ultra realistic, unreal engine, 
+# ultra detailed, cyber background, Hyperrealism, cinematic lighting, 
+# highly detailed, breathtaking, photography, stunning environment, wide-angle):1, 
+# (doll, bad anatomy, blurry, fuzzy, 
+# extra arms, extra fingers, poorly drawn hands, 
+# disfigured, tiling, deformed, mutated, signature):-1
+# """,
+#     160: """
+# (3d goddess medium shot portrait with hyperdimensional totem implants. 
+# beautiful intricately detailed avant garde wolf mask and retrowave sorceress outfit. 
+# bio luminescent, water, plasma, neon):1, 
+# (doll, bad anatomy, blurry, fuzzy, 
+# extra arms, extra fingers, poorly drawn hands, 
+# disfigured, tiling, deformed, mutated, signature):-1
+# """,
+#     192: """
+# (smiling menacing villain in jojo's bizarre adventure, giant fangs, 
+# galaxy, universe, black hole, cosmos, darkness, dark matter, photorealistic, 
+# 8k high fidelity, ultra-detailed):1, 
+# (logo, signature, text, blurry):-1
+# """,
 }
 
 # %%
@@ -257,9 +244,9 @@ def DeforumArgs():
 
     #@markdown **Sampling Settings**
     seed = 0 #@param
-    sampler = 'dpmpp_2s_a' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-    steps = 100 #important 80
-    scale = 8.5 #important
+    sampler = 'euler_ancestral' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
+    steps = 180 #important 80
+    scale = 7 #important
     ddim_eta = 0.0 #@param
     dynamic_threshold = None
     static_threshold = None   
@@ -287,22 +274,23 @@ def DeforumArgs():
     outdir = get_output_folder(root.output_path, batch_name)
 
     #@markdown **Init Settings**
-    use_init = True #@param {type:"boolean"}
-    strength = 0.1 #@param {type:"number"}
+    use_init = False #@param {type:"boolean"}
+    strength = 0.8 #@param {type:"number"}
     strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
-    init_image = "./outputs/init_img.png" 
+    init_image = "./05.png"
     # Whiter areas of the mask are areas that change more
     use_mask = False #@param {type:"boolean"}
     use_alpha_as_mask = False # use the alpha channel of the init image as the mask
-    mask_file = "https://www.filterforge.com/wiki/images/archive/b/b7/20080927223728%21Polygonal_gradient_thumb.jpg" 
-    invert_mask = False #@param {type:"boolean"}
+    mask_file = "./96_mask3.png" 
+    #"https://www.filterforge.com/wiki/images/archive/b/b7/20080927223728%21Polygonal_gradient_thumb.jpg" 
+    invert_mask = False #if true, inpaint the white parts
     # Adjust mask image, 1.0 is no adjustment. Should be positive numbers.
     mask_brightness_adjust = 1.0  #@param {type:"number"}
     mask_contrast_adjust = 1.0  #@param {type:"number"}
     # Overlay the masked image at the end of the generation so it does not get degraded by encoding and decoding
     overlay_mask = True  # {type:"boolean"}
     # Blur edges of final overlay mask, if used. Minimum = 0 (no blur)
-    mask_overlay_blur = 5 # {type:"number"}
+    mask_overlay_blur = 4 # {type:"number"}
 
     #@markdown **Exposure/Contrast Conditional Settings**
     mean_scale = 0 #@param {type:"number"}
@@ -419,7 +407,7 @@ else:
 # !!   "id": "XQGeqaGAWM_v"
 # !! }}
 skip_video_for_run_all = False #@param {type: 'boolean'}
-fps = 12 #@param {type:"number"}
+fps = 30 #@param {type:"number"}
 #@markdown **Manual Settings**
 image_path = "./content/output/%04d.png" 
 mp4_path = "./content/output/out.mp4" 
