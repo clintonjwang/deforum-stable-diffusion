@@ -66,19 +66,20 @@ def Root():
     mount_google_drive = False #@param {type:"boolean"}
 
     #@markdown **Model Setup**
+    map_location = "cuda" #@param ["cpu", "cuda"]
     model_config = "v2-inference-v.yaml"
-    #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
     model_checkpoint =  "v2-1_768-ema-pruned.ckpt"
-    #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
-    custom_config_path = "" 
-    custom_checkpoint_path = "" 
+    # model_config = "v1-inference.yaml" #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
+    # model_checkpoint =  "Protogen_V2.2.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
+    custom_config_path = "" #@param {type:"string"}
+    custom_checkpoint_path = "" #@param {type:"string"}
     return locals()
 
 root = Root()
 root = SimpleNamespace(**root)
 
 root.models_path, root.output_path = get_model_output_paths(root)
-root.model, root.device = load_model(root, load_on_run_all=True, check_sha256=True)
+root.model, root.device = load_model(root, load_on_run_all=True, check_sha256=True, map_location=root.map_location)
 
 # %%
 # !! {"metadata":{
@@ -237,8 +238,8 @@ custom_settings_file = "/content/drive/MyDrive/Settings.txt"
 
 def DeforumArgs():
     #@markdown **Image Settings**
-    W = 768 #@param
-    H = 768 #@param
+    W = 512 #@param
+    H = 512 #@param
     W, H = map(lambda x: x - x % 64, (W, H))  # resize to integer multiple of 64
     bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
@@ -512,7 +513,7 @@ else:
 # !!     "name": "python",
 # !!     "nbconvert_exporter": "python",
 # !!     "pygments_lexer": "ipython3",
-# !!     "version": "3.10.6"
+# !!     "version": "3.10.8"
 # !!   },
 # !!   "orig_nbformat": 4,
 # !!   "vscode": {
