@@ -69,8 +69,8 @@ def Root():
     map_location = "cuda" #@param ["cpu", "cuda"]
     # model_config = "v2-inference-v.yaml"
     # model_checkpoint =  "v2-1_768-ema-pruned.ckpt"
-    model_config = "v1-inference.yaml" #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
-    model_checkpoint =  "Protogen_V2.2.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
+    model_config = "v2-inference-v.yaml" #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
+    model_checkpoint =  "v2-1_768-ema-pruned.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
     custom_config_path = "" #@param {type:"string"}
     custom_checkpoint_path = "" #@param {type:"string"}
     return locals()
@@ -98,15 +98,15 @@ def DeforumAnimArgs():
 
     #@markdown ####**Animation:**
     animation_mode = '2D' #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
-    max_frames = 25 #@param {type:"number"}
+    max_frames = 120 #@param {type:"number"}
     border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
     #@markdown ####**Motion Parameters:**
     angle = "0:(0)"
-    zoom = """0:(1)"""#1.04
-    translation_x = "0:(0)" #10*sin(2*3.14*t/10)
-    translation_y = "0:(0)"
-    translation_z = "0:(0)" #10
+    zoom = "0:(1)"#1.04
+    translation_x = "0:(0)" #
+    translation_y = "0:(0)" #-15*(sin(t*0.5)+1)
+    translation_z = "0:(0)"
     rotation_3d_x = "0:(0)"
     rotation_3d_y = "0:(0)"
     rotation_3d_z = "0:(0)"
@@ -115,8 +115,8 @@ def DeforumAnimArgs():
     perspective_flip_phi = "0:(0)" #t%15
     perspective_flip_gamma = "0:(0)"
     perspective_flip_fv = "0:(0)" #53
-    noise_schedule = "0:(0.02)" #important
-    strength_schedule = "0:(0.75)" #important
+    noise_schedule = "0:(0.05)" #0.04*(sin(t*0.5)+1)+0.05
+    strength_schedule = "0:(0.6)" #important
     contrast_schedule = "0: (1.0)"
     hybrid_video_comp_alpha_schedule = "0:(1)" 
     hybrid_video_comp_mask_blend_alpha_schedule = "0:(0.5)" 
@@ -189,10 +189,9 @@ prompts = [
 ]
 
 animation_prompts = {
-   0: "(fortune telling crystal ball, ultra realistic, unreal engine, photography, wide-angle):1, (text, tiling, deformed, blurry):-1",
-   10: "(fortune telling crystal ball, white, cloudy, smoky, hazy, ultra realistic, unreal engine, photography, wide-angle):1, (text, tiling, deformed, blurry):-1",
+#    0: "(Escher illusion, surreal masterpiece, 3D, geometric, animation, high quality, highly detailed):1, (text, low quality, boring, 2D):-1",
+   1: "(an image of a tunnel in the middle of the ocean, the lost city of atlantis, underwater city, the city of atlantis, an underwater city, cgsociety 9, undersea temple with fish, city of atlantis, underwater temple, lost city of atlantis, artwork about a road to freedom, undersea temple, an underwater alien ocean, gateway to futurisma):1, (text, low quality, boring, 2D):-1",
 #   0: "(text, bad anatomy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
-#    0: "(brown hair, rick astley):1.4, (rickroll, never gonna give you up, man singing into a microphone, ultra realistic, unreal engine, photography, wide-angle):1, (female, pattern, text, bad anatomy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
 # 20: "(rick astley):1.2, (rickroll, never gonna give you up, singing into a microphone, orange-brown hair, ultra realistic, unreal engine, breathtaking, photography, wide-angle):1, (text, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
 #    30: "(cute girl):1.6, (magical highly detailed fantasy portrait of a holy knight with a halo, volumetric fog, Hyperrealism, breathtaking, ultra realistic, unreal engine, ultra detailed, cyber background, Hyperrealism, cinematic lighting, highly detailed, breathtaking, photography, stunning environment, wide-angle):1, (cgi, 3d, doll, octane, render, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
 # "(Elsa, d & d, fantasy, intricate, elegant, highly detailed, digital painting, artstation, concept art, matte, sharp focus, illustration, hearthstone, art by artgerm and greg rutkowski and alphonse mucha, 8k):1, (deformed, cripple, ugly):-1"
@@ -266,9 +265,9 @@ def DeforumArgs():
     bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
     #@markdown **Sampling Settings**
-    seed = 0 #@param
-    sampler = 'ddim' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-    steps = 70 #important 80
+    seed = 1 #@param
+    sampler = 'dpmpp_2s_a' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
+    steps = 100 #important
     scale = 7 #important
     ddim_eta = 0.0 #@param
     dynamic_threshold = None
@@ -300,20 +299,20 @@ def DeforumArgs():
     use_init = True #@param {type:"boolean"}
     strength = 1. #@param {type:"number"}
     strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
-    init_image = "./01.png"
+    init_image = "gso.png"
     # Whiter areas of the mask are areas that change more
-    use_mask = True #@param {type:"boolean"}
+    use_mask = False #@param {type:"boolean"}
     use_alpha_as_mask = False # use the alpha channel of the init image as the mask
-    mask_file = "./mask.png" 
+    mask_file = "mask5.png" 
     #"https://www.filterforge.com/wiki/images/archive/b/b7/20080927223728%21Polygonal_gradient_thumb.jpg" 
     invert_mask = True #if true, inpaint the white parts
     # Adjust mask image, 1.0 is no adjustment. Should be positive numbers.
     mask_brightness_adjust = 1.0  #@param {type:"number"}
-    mask_contrast_adjust = 0.9  #@param {type:"number"}
+    mask_contrast_adjust = 1.0  #@param {type:"number"}
     # Overlay the masked image at the end of the generation so it does not get degraded by encoding and decoding
     overlay_mask = True  # {type:"boolean"}
     # Blur edges of final overlay mask, if used. Minimum = 0 (no blur)
-    mask_overlay_blur = 4 # {type:"number"}
+    mask_overlay_blur = 2 # {type:"number"}
 
     #@markdown **Exposure/Contrast Conditional Settings**
     mean_scale = 0 #@param {type:"number"}

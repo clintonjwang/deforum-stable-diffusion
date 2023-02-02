@@ -1,3 +1,7 @@
+collage
+coll_out
+*.png
+
 # Unnecessary compiled python files.
 __pycache__
 *.pyc
