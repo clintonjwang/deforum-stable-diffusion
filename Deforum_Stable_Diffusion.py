@@ -98,12 +98,12 @@ def DeforumAnimArgs():
 
     #@markdown ####**Animation:**
     animation_mode = '2D' #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
-    max_frames = 120 #@param {type:"number"}
+    max_frames = 25 #@param {type:"number"}
     border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
     #@markdown ####**Motion Parameters:**
     angle = "0:(0)"
-    zoom = "0:(1)"#1.04
+    zoom = "0:(1.01), 10:(1.5), 11:(1.01), 20:(2.0), 21:(1.01)"#1.04
     translation_x = "0:(0)" #
     translation_y = "0:(0)" #-15*(sin(t*0.5)+1)
     translation_z = "0:(0)"
@@ -115,20 +115,18 @@ def DeforumAnimArgs():
     perspective_flip_phi = "0:(0)" #t%15
     perspective_flip_gamma = "0:(0)"
     perspective_flip_fv = "0:(0)" #53
-    noise_schedule = "0:(0.05)" #0.04*(sin(t*0.5)+1)+0.05
-    strength_schedule = "0:(0.6)" #important
-    contrast_schedule = "0: (1.0)"
+    noise_schedule = "0:(0.01), 10:(0.8), 11:(0.01), 20:(0.8), 21:(0.01)" #0.04*(sin(t*0.5)+1)+0.05
+    strength_schedule = "0:(.6)" #important
+    contrast_schedule = "0: (1)"
+    saturation_schedule = "0: (1)"
+    brightness_schedule = "0: (1)"
+    sharpness_schedule = "0: (1)"
     hybrid_video_comp_alpha_schedule = "0:(1)" 
     hybrid_video_comp_mask_blend_alpha_schedule = "0:(0.5)" 
     hybrid_video_comp_mask_contrast_schedule = "0:(1)" 
     hybrid_video_comp_mask_auto_contrast_cutoff_high_schedule =  "0:(100)" 
     hybrid_video_comp_mask_auto_contrast_cutoff_low_schedule =  "0:(0)" 
 
-    #@markdown ####**Unsharp mask (anti-blur) Parameters:**
-    kernel_schedule = "0: (5)"
-    sigma_schedule = "0: (1.0)"
-    amount_schedule = "0: (0.2)"
-    threshold_schedule = "0: (0.0)"
 
     #@markdown ####**Coherence:**
     color_coherence = 'Match Frame 0 LAB' #@param ['None', 'Match Frame 0 HSV', 'Match Frame 0 LAB', 'Match Frame 0 RGB', 'Video Input'] {type:'string'}
@@ -189,8 +187,12 @@ prompts = [
 ]
 
 animation_prompts = {
+    0: "portrait of beautiful anime character, studio ghibli",
+    5: "portrait of beautiful anime character, angelic",
+    10: "close-up portrait of evil anime character, ゲス顔 gesugao, black and white, red eyes, evil",
+    20: "portrait of beautiful angelic anime character, studio ghibli",
 #    0: "(Escher illusion, surreal masterpiece, 3D, geometric, animation, high quality, highly detailed):1, (text, low quality, boring, 2D):-1",
-   1: "(an image of a tunnel in the middle of the ocean, the lost city of atlantis, underwater city, the city of atlantis, an underwater city, cgsociety 9, undersea temple with fish, city of atlantis, underwater temple, lost city of atlantis, artwork about a road to freedom, undersea temple, an underwater alien ocean, gateway to futurisma):1, (text, low quality, boring, 2D):-1",
+#   1: "(an image of a tunnel in the middle of the ocean, the lost city of atlantis, underwater city, the city of atlantis, an underwater city, cgsociety 9, undersea temple with fish, city of atlantis, underwater temple, lost city of atlantis, artwork about a road to freedom, undersea temple, an underwater alien ocean, gateway to futurisma):1, (text, low quality, boring, 2D):-1",
 #   0: "(text, bad anatomy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
 # 20: "(rick astley):1.2, (rickroll, never gonna give you up, singing into a microphone, orange-brown hair, ultra realistic, unreal engine, breathtaking, photography, wide-angle):1, (text, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
 #    30: "(cute girl):1.6, (magical highly detailed fantasy portrait of a holy knight with a halo, volumetric fog, Hyperrealism, breathtaking, ultra realistic, unreal engine, ultra detailed, cyber background, Hyperrealism, cinematic lighting, highly detailed, breathtaking, photography, stunning environment, wide-angle):1, (cgi, 3d, doll, octane, render, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
@@ -267,8 +269,8 @@ def DeforumArgs():
     #@markdown **Sampling Settings**
     seed = 1 #@param
     sampler = 'dpmpp_2s_a' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-    steps = 100 #important
-    scale = 7 #important
+    steps = 70 #important
+    scale = 7.5 #important
     ddim_eta = 0.0 #@param
     dynamic_threshold = None
     static_threshold = None   
@@ -296,7 +298,7 @@ def DeforumArgs():
     outdir = get_output_folder(root.output_path, batch_name)
 
     #@markdown **Init Settings**
-    use_init = True #@param {type:"boolean"}
+    use_init = False #@param {type:"boolean"}
     strength = 1. #@param {type:"number"}
     strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
     init_image = "gso.png"

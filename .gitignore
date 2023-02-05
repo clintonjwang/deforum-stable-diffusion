@@ -1,6 +1,9 @@
 collage
 coll_out
 *.png
+cache
+proj1.py
+interrogate
 
 # Unnecessary compiled python files.
 __pycache__
