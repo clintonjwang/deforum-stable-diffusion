@@ -1,9 +1,8 @@
-collage
-coll_out
+archive
 *.png
 cache
-proj1.py
 interrogate
+tmp
 
 # Unnecessary compiled python files.
 __pycache__

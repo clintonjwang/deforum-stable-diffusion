@@ -19,7 +19,7 @@ from scipy.ndimage import gaussian_filter
 from .callback import SamplerCallback
 
 from .conditioning import exposure_loss, make_mse_loss, get_color_palette, make_clip_loss_fn
-from .conditioning import make_rgb_color_match_loss, blue_loss_fn, threshold_by, make_aesthetics_loss_fn, mean_loss_fn, var_loss_fn, exposure_loss
+from .conditioning import make_rgb_color_match_loss, blue_loss_fn, red_loss_fn, threshold_by, make_aesthetics_loss_fn, mean_loss_fn, var_loss_fn, exposure_loss
 from .model_wrap import CFGDenoiserWithGrad
 from .load_images import load_img, load_mask_latent, prepare_mask, prepare_overlay_mask
 
@@ -158,6 +158,7 @@ def generate(args, root, frame = 0, return_latent=False, return_sample=False, re
     loss_fns_scales = [
         [clip_loss_fn,              args.clip_scale],
         [blue_loss_fn,              args.blue_scale],
+        [red_loss_fn,              args.red_scale],
         [mean_loss_fn,              args.mean_scale],
         [exposure_loss_fn,          args.exposure_scale],
         [var_loss_fn,               args.var_scale],

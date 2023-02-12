@@ -97,19 +97,25 @@ def make_aesthetics_loss_fn(root,args):
 
 ## end CLIP -----------------------------------------
 
-# blue loss from @johnowhitaker's tutorial on Grokking Stable Diffusion
 def blue_loss_fn(x, sigma, **kwargs):
-  # How far are the blue channel values to 0.9:
-  error = torch.abs(x[:,-1, :, :] - 0.9).mean() 
+  # How far are the blue channel values below other channels
+  error = (torch.clamp_min(x[:,-1] - x[..., -1], 0) + \
+    torch.clamp_min(x[:,-1] - x[:,:, -1], 0)).mean() 
   return error
 
-# MSE loss from init
+def red_loss_fn(x, sigma, **kwargs):
+  # How far are the red channel values below other channels
+  error = (torch.clamp_min(x[..., -1] - x[:,-1], 0) + \
+    torch.clamp_min(x[..., -1] - x[:,:, -1], 0)).mean() 
+  return error
+
+# MSE loss from target image
 def make_mse_loss(target):
     def mse_loss(x, sigma, **kwargs):
         return (x - target).square().mean()
     return mse_loss
 
-# MSE loss from init
+# MAE difference from target value
 def exposure_loss(target):
     def exposure_loss_fn(x, sigma, **kwargs):
         error = torch.abs(x-target).mean()

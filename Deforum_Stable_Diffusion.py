@@ -1,41 +1,8 @@
-# %%
-# !! {"metadata":{
-# !!   "id": "ByGXyiHZWM_q"
-# !! }}
-"""
-# **Deforum Stable Diffusion v0.7**
-[Stable Diffusion](https://github.com/CompVis/stable-diffusion) by Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, Björn Ommer and the [Stability.ai](https://stability.ai/) Team. [K Diffusion](https://github.com/crowsonkb/k-diffusion) by [Katherine Crowson](https://twitter.com/RiversHaveWings). Notebook by [deforum](https://discord.gg/upmXXsrwZc)
+prompts = []
+animation_prompts = {
+    0: "(an elegant black and white drawing of a young man, MS paint, white background, minimalist, digital art masterpiece, simple, scribbles, abstract, trending on artstation, hand-drawn, me, webcam, zoom call):1, (text, watermark, signature, poorly drawn, bad art):-1",
+}
 
-[Quick Guide](https://docs.google.com/document/d/1RrQv7FntzOuLg4ohjRZPVL7iptIyBhwwbcEYEW2OfcI/edit?usp=sharing) to Deforum v0.7
-"""
-
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "IJjzzkKlWM_s"
-# !! }}
-#@markdown **NVIDIA GPU**
-import subprocess, os, sys
-sub_p_res = subprocess.run(['nvidia-smi', '--query-gpu=name,memory.total,memory.free', '--format=csv,noheader'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-print(f"{sub_p_res[:-1]}")
-
-# import shutil
-# shutil.rmtree('./outputs/')
-
-# %%
-# !! {"metadata":{
-# !!   "id": "UA8-efH-WM_t"
-# !! }}
-"""
-# Setup
-"""
-
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "vohUiWo-I2HQ"
-# !! }}
-#@markdown **Environment Setup**
 import subprocess, time, gc, os, sys
 sys.path.extend([
     'src'
@@ -52,13 +19,6 @@ from helpers.render import render_animation, render_input_video, render_image_ba
 from helpers.model_load import make_linear_decode, load_model, get_model_output_paths
 from helpers.aesthetics import load_aesthetics_model
 
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "0D2HQO-PWM_t"
-# !! }}
-#@markdown **Path Setup**
-
 def Root():
     models_path = "models" 
     configs_path = "configs" 
@@ -67,8 +27,6 @@ def Root():
 
     #@markdown **Model Setup**
     map_location = "cuda" #@param ["cpu", "cuda"]
-    # model_config = "v2-inference-v.yaml"
-    # model_checkpoint =  "v2-1_768-ema-pruned.ckpt"
     model_config = "v2-inference-v.yaml" #@param ["custom","v2-inference.yaml","v2-inference-v.yaml","v1-inference.yaml"]
     model_checkpoint =  "v2-1_768-ema-pruned.ckpt" #@param ["custom","v2-1_768-ema-pruned.ckpt","v2-1_512-ema-pruned.ckpt","768-v-ema.ckpt","512-base-ema.ckpt","Protogen_V2.2.ckpt","v1-5-pruned.ckpt","v1-5-pruned-emaonly.ckpt","sd-v1-4-full-ema.ckpt","sd-v1-4.ckpt","sd-v1-3-full-ema.ckpt","sd-v1-3.ckpt","sd-v1-2-full-ema.ckpt","sd-v1-2.ckpt","sd-v1-1-full-ema.ckpt","sd-v1-1.ckpt", "robo-diffusion-v1.ckpt","wd-v1-3-float16.ckpt"]
     custom_config_path = "" #@param {type:"string"}
@@ -81,29 +39,15 @@ root = SimpleNamespace(**root)
 root.models_path, root.output_path = get_model_output_paths(root)
 root.model, root.device = load_model(root, load_on_run_all=True, check_sha256=True, map_location=root.map_location)
 
-# %%
-# !! {"metadata":{
-# !!   "id": "6JxwhBwtWM_t"
-# !! }}
-"""
-# Settings
-"""
-
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "E0tJVYA4WM_u"
-# !! }}
 def DeforumAnimArgs():
-
     #@markdown ####**Animation:**
     animation_mode = '2D' #@param ['None', '2D', '3D', 'Video Input', 'Interpolation'] {type:'string'}
-    max_frames = 25 #@param {type:"number"}
+    max_frames = 20 #@param {type:"number"}
     border = 'replicate' #@param ['wrap', 'replicate'] {type:'string'}
 
     #@markdown ####**Motion Parameters:**
     angle = "0:(0)"
-    zoom = "0:(1.01), 10:(1.5), 11:(1.01), 20:(2.0), 21:(1.01)"#1.04
+    zoom = "0:(1)"
     translation_x = "0:(0)" #
     translation_y = "0:(0)" #-15*(sin(t*0.5)+1)
     translation_z = "0:(0)"
@@ -115,12 +59,12 @@ def DeforumAnimArgs():
     perspective_flip_phi = "0:(0)" #t%15
     perspective_flip_gamma = "0:(0)"
     perspective_flip_fv = "0:(0)" #53
-    noise_schedule = "0:(0.01), 10:(0.8), 11:(0.01), 20:(0.8), 21:(0.01)" #0.04*(sin(t*0.5)+1)+0.05
-    strength_schedule = "0:(.6)" #important
-    contrast_schedule = "0: (1)"
-    saturation_schedule = "0: (1)"
-    brightness_schedule = "0: (1)"
-    sharpness_schedule = "0: (1)"
+    noise_schedule = "0:(0.02)" #0.04*(sin(t*0.5)+1)+0.05
+    strength_schedule = "0:(.5)" #important
+    contrast_schedule = "0:(1)"
+    saturation_schedule = "0:(0.5), 1:(0.8)"
+    brightness_schedule = "0:(1)"
+    sharpness_schedule = "0:(1.09)"
     hybrid_video_comp_alpha_schedule = "0:(1)" 
     hybrid_video_comp_mask_blend_alpha_schedule = "0:(0.5)" 
     hybrid_video_comp_mask_contrast_schedule = "0:(1)" 
@@ -129,7 +73,7 @@ def DeforumAnimArgs():
 
 
     #@markdown ####**Coherence:**
-    color_coherence = 'Match Frame 0 LAB' #@param ['None', 'Match Frame 0 HSV', 'Match Frame 0 LAB', 'Match Frame 0 RGB', 'Video Input'] {type:'string'}
+    color_coherence = 'None'#'Match Frame 0 LAB' #@param ['None', 'Match Frame 0 HSV', 'Match Frame 0 LAB', 'Match Frame 0 RGB', 'Video Input'] {type:'string'}
     color_coherence_video_every_N_frames = 1 #@param {type:"integer"}
     diffusion_cadence = '1' #@param ['1','2','3','4','5','6','7','8'] {type:'string'}
 
@@ -173,87 +117,6 @@ def DeforumAnimArgs():
 
     return locals()
 
-# %%
-# !! {"metadata":{
-# !!   "id": "i9fly1RIWM_u"
-# !! }}
-prompts = [
-    "a beautiful lake by Asher Brown Durand, trending on Artstation", # the first prompt I want
-    "a beautiful portrait of a woman by Artgerm, trending on Artstation", # the second prompt I want
-    #"this prompt I don't want it I commented it out",
-    #"a nousr robot, trending on Artstation", # use "nousr robot" with the robot diffusion model (see model_checkpoint setting)
-    #"touhou 1girl komeiji_koishi portrait, green hair", # waifu diffusion prompts can use danbooru tag groups (see model_checkpoint)
-    #"this prompt has weights if prompt weighting enabled:2 can also do negative:-2", # (see prompt_weighting)
-]
-
-animation_prompts = {
-    0: "portrait of beautiful anime character, studio ghibli",
-    5: "portrait of beautiful anime character, angelic",
-    10: "close-up portrait of evil anime character, ゲス顔 gesugao, black and white, red eyes, evil",
-    20: "portrait of beautiful angelic anime character, studio ghibli",
-#    0: "(Escher illusion, surreal masterpiece, 3D, geometric, animation, high quality, highly detailed):1, (text, low quality, boring, 2D):-1",
-#   1: "(an image of a tunnel in the middle of the ocean, the lost city of atlantis, underwater city, the city of atlantis, an underwater city, cgsociety 9, undersea temple with fish, city of atlantis, underwater temple, lost city of atlantis, artwork about a road to freedom, undersea temple, an underwater alien ocean, gateway to futurisma):1, (text, low quality, boring, 2D):-1",
-#   0: "(text, bad anatomy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
-# 20: "(rick astley):1.2, (rickroll, never gonna give you up, singing into a microphone, orange-brown hair, ultra realistic, unreal engine, breathtaking, photography, wide-angle):1, (text, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
-#    30: "(cute girl):1.6, (magical highly detailed fantasy portrait of a holy knight with a halo, volumetric fog, Hyperrealism, breathtaking, ultra realistic, unreal engine, ultra detailed, cyber background, Hyperrealism, cinematic lighting, highly detailed, breathtaking, photography, stunning environment, wide-angle):1, (cgi, 3d, doll, octane, render, bad anatomy, blurry, fuzzy, extra arms, extra fingers, poorly drawn hands, disfigured, tiling, deformed, mutated):-1",
-# "(Elsa, d & d, fantasy, intricate, elegant, highly detailed, digital painting, artstation, concept art, matte, sharp focus, illustration, hearthstone, art by artgerm and greg rutkowski and alphonse mucha, 8k):1, (deformed, cripple, ugly):-1"
-# # "(cute girl):2, (The personification of the Halloween holiday in the form of a cute girl with short hair and a villain's smile, cute hats, cute cheeks, unreal engine, highly detailed, artgerm digital illustration, woo tooth, studio ghibli, deviantart, sharp focus, artstation, by Alexei Vinogradov bakery, sweets, emerald eyes):1, (bad anatomy, extra legs, extra arms, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, bad hands, bad art, deformed, double head):-1"
-#"Beautiful anime painting of solarpunk summer chill day. trending on artstation, 8k, masterpiece, graffiti paint, fine detail, full of color, intricate detail, golden ratio illustration
-#     0: "an aerial view of a city at night, cyberpunk 2077 night city, 
-# hyper realistic cyberpunk city, beautiful cyberpunk city, 
-# cyberpunk utopia, cyberpunk 8k, aerial view of a cyberpunk city, 
-# futuristic cyberpunk city, cyberpunk futuristic, cyberpunk kowloon, 
-# cyberpunk city backdrop, arcane, dark, cinematic masterpiece, neon signs, 
-# hyperrealistic, 8k, ultra-detailed, trending on artstation):1, 
-# (logo, signature, text, blurry):-1
-# ",
-#     30: """wide angle view of a cyberpunk city at night, 
-# cyberpunk 2077 night city, 
-# hyper realistic cyberpunk city, beautiful cyberpunk city, 
-# cyberpunk utopia, cyberpunk 8k, aerial view of a cyberpunk city, 
-# futuristic cyberpunk city, cyberpunk futuristic, cyberpunk kowloon, 
-# cyberpunk city backdrop, arcane, dark, cinematic masterpiece, neon signs, 
-# hyperrealistic, 8k, ultra-detailed, trending on artstation):1, 
-# (logo, signature, text, blurry):-1
-# """,
-#     150: """(wide angle shot of a busy alleyway at night,
-# cyberpunk 2077 night city, 
-# hyper realistic cyberpunk city, beautiful cyberpunk city, 
-# cyberpunk utopia, cyberpunk 8k, aerial view of a cyberpunk city, 
-# futuristic cyberpunk city, cyberpunk futuristic, cyberpunk kowloon, 
-# cyberpunk city backdrop, arcane, dark, cinematic masterpiece, neon signs, 
-# hyperrealistic, 8k, ultra-detailed, trending on artstation):1, 
-# (logo, signature, text, blurry):-1
-# """,
-#     300: """(descending through a bioluminescent park, 
-# plasma, neon waterfall, electricity, arc lightning, 
-# cinematic masterpiece, neon, 
-# dramatic lighting, intricate, trending on artstation):1, 
-# (logo, signature, text, blurry):-1
-# """,
-#     80: """(highly detailed portrait of a skull warrior, 
-# volumetric fog, hyperrealism, breathtaking, ultra realistic, unreal engine, 
-# ultra detailed, cyber background, Hyperrealism, cinematic lighting, 
-# highly detailed, breathtaking, photography, stunning environment, wide-angle):1, 
-# (doll, bad anatomy, blurry, fuzzy, 
-# extra arms, extra fingers, poorly drawn hands, 
-# disfigured, tiling, deformed, mutated, signature):-1
-# """,
-#     160: """
-# (3d goddess medium shot portrait with hyperdimensional totem implants. 
-# beautiful intricately detailed avant garde wolf mask and retrowave sorceress outfit. 
-# bio luminescent, water, plasma, neon):1, 
-# (doll, bad anatomy, blurry, fuzzy, 
-# extra arms, extra fingers, poorly drawn hands, 
-# disfigured, tiling, deformed, mutated, signature):-1
-# """,
-}
-
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "XVzhbmizWM_u"
-# !! }}
 #@markdown **Load Settings**
 override_settings_with_file = False #@param {type:"boolean"}
 settings_file = "custom" #@param ["custom", "512x512_aesthetic_0.json","512x512_aesthetic_1.json","512x512_colormatch_0.json","512x512_colormatch_1.json","512x512_colormatch_2.json","512x512_colormatch_3.json"]
@@ -267,9 +130,8 @@ def DeforumArgs():
     bit_depth_output = 8 #@param [8, 16, 32] {type:"raw"}
 
     #@markdown **Sampling Settings**
-    seed = 1 #@param
     sampler = 'dpmpp_2s_a' #@param ["klms","dpm2","dpm2_ancestral","heun","euler","euler_ancestral","plms", "ddim", "dpm_fast", "dpm_adaptive", "dpmpp_2s_a", "dpmpp_2m"]
-    steps = 70 #important
+    steps = 80 #important
     scale = 7.5 #important
     ddim_eta = 0.0 #@param
     dynamic_threshold = None
@@ -291,6 +153,7 @@ def DeforumArgs():
     n_batch = 1 #@param
     batch_name = "StableFun" 
     filename_format = "{timestring}_{index}_{prompt}.png" #@param ["{timestring}_{index}_{seed}.png","{timestring}_{index}_{prompt}.png"]
+    seed = 4 #@param
     seed_behavior = "iter" #@param ["iter","fixed","random","ladder","alternate"]
     seed_iter_N = 1 #@param {type:'integer'}
     make_grid = False #@param {type:"boolean"}
@@ -298,10 +161,10 @@ def DeforumArgs():
     outdir = get_output_folder(root.output_path, batch_name)
 
     #@markdown **Init Settings**
-    use_init = False #@param {type:"boolean"}
-    strength = 1. #@param {type:"number"}
+    use_init = True #@param {type:"boolean"}
+    strength = .4 #@param {type:"number"}
     strength_0_no_init = True # Set the strength to 0 automatically when no init image is used
-    init_image = "gso.png"
+    init_image = "sunny.png"
     # Whiter areas of the mask are areas that change more
     use_mask = False #@param {type:"boolean"}
     use_alpha_as_mask = False # use the alpha channel of the init image as the mask
@@ -337,19 +200,20 @@ def DeforumArgs():
 
     #@markdown **Other Conditional Settings**
     init_mse_scale = 0 #@param {type:"number"}
-    init_mse_image = "https://cdn.pixabay.com/photo/2022/07/30/13/10/green-longhorn-beetle-7353749_1280.jpg" 
+    init_mse_image = "nn2_5.png"
 
     blue_scale = 0 #@param {type:"number"}
+    red_scale = 0 #@param {type:"number"}
     
     #@markdown **Conditional Gradient Settings**
     gradient_wrt = 'x0_pred' #@param ["x", "x0_pred"]
     gradient_add_to = 'both' #@param ["cond", "uncond", "both"]
     decode_method = 'linear' #@param ["autoencoder","linear"]
     grad_threshold_type = 'dynamic' #@param ["dynamic", "static", "mean", "schedule"]
-    clamp_grad_threshold = 0.2 #@param {type:"number"}
-    clamp_start = 0.2 #@param
+    clamp_grad_threshold = 0.3 #@param {type:"number"}
+    clamp_start = 0.3 #@param
     clamp_stop = 0.01 #@param
-    grad_inject_timing = list(range(1,10)) #@param
+    grad_inject_timing = list(range(1,40)) #@param
 
     #@markdown **Speed vs VRAM Settings**
     cond_uncond_sync = True #@param {type:"boolean"}
@@ -431,7 +295,7 @@ else:
 # !!   "id": "XQGeqaGAWM_v"
 # !! }}
 skip_video_for_run_all = False #@param {type: 'boolean'}
-fps = 30 #@param {type:"number"}
+fps = 10 #@param {type:"number"}
 #@markdown **Manual Settings**
 image_path = "./content/output/%04d.png" 
 mp4_path = "./content/output/out.mp4" 
@@ -500,48 +364,3 @@ else:
              gif_path
          ]
          process_gif = subprocess.Popen(cmd_gif, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-# %%
-# !! {"metadata":{
-# !!   "cellView": "form",
-# !!   "id": "MMpAcyrYWM_v"
-# !! }}
-skip_disconnect_for_run_all = True #@param {type: 'boolean'}
-
-if skip_disconnect_for_run_all == True:
-    print('Skipping disconnect, uncheck skip_disconnect_for_run_all if you want to run it')
-else:
-    from google.colab import runtime
-    runtime.unassign()
-
-# %%
-# !! {"main_metadata":{
-# !!   "accelerator": "GPU",
-# !!   "colab": {
-# !!     "provenance": []
-# !!   },
-# !!   "gpuClass": "standard",
-# !!   "kernelspec": {
-# !!     "display_name": "Python 3.10.6 ('dsd')",
-# !!     "language": "python",
-# !!     "name": "python3"
-# !!   },
-# !!   "language_info": {
-# !!     "codemirror_mode": {
-# !!       "name": "ipython",
-# !!       "version": 3
-# !!     },
-# !!     "file_extension": ".py",
-# !!     "mimetype": "text/x-python",
-# !!     "name": "python",
-# !!     "nbconvert_exporter": "python",
-# !!     "pygments_lexer": "ipython3",
-# !!     "version": "3.10.8"
-# !!   },
-# !!   "orig_nbformat": 4,
-# !!   "vscode": {
-# !!     "interpreter": {
-# !!       "hash": "b7e04c8a9537645cbc77fa0cbde8069bc94e341b0d5ced104651213865b24e58"
-# !!     }
-# !!   }
-# !! }}
